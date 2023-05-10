@@ -90,7 +90,7 @@ namespace CoverGo.PairProgramming.App.Test.Application
             //var result = await handler.Handle(query, CancellationToken.None);
 
             //Assert 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.Handle(query, CancellationToken.None));
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.Handle(query, CancellationToken.None));
         }
 
 

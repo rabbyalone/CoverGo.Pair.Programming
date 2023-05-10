@@ -17,25 +17,16 @@ namespace CoverGo.PairProgramming.Application.Handlers
                 CartId = 1,
                 CustomerId = request.CustomerId,
                 Products = new List<Product>(request.Products),
-                Discount = CalculateDiscount(request.Products),
-                TotalPrice = CalculateTotalPrice(request.Products),
+                Discount = CalculateDiscountandTotalPrice(request.Products).Item1,
+                TotalPrice = CalculateDiscountandTotalPrice(request.Products).Item2,
             };
 
             return cart;
         }
 
-        private decimal CalculateTotalPrice(List<Product> products)
+        private (decimal, decimal) CalculateDiscountandTotalPrice(List<Product> products)
         {
-            decimal total = 0;
-            foreach (Product product in products)
-            {
-                total = (product.Price * product.Quantity) - CalculateDiscount(products);
-            }
-            return total;
-        }
 
-        private decimal CalculateDiscount(List<Product> products)
-        {
             decimal discount = 0;
             foreach (var item in products ?? new List<Product>())
             {
@@ -47,7 +38,11 @@ namespace CoverGo.PairProgramming.Application.Handlers
 
             }
 
-            return discount;
+            ArgumentNullException.ThrowIfNull(products);
+
+            decimal totalPrice = products.Sum(x => x.Price * x.Quantity) - discount;
+
+            return (discount, totalPrice);
         }
     }
 }
