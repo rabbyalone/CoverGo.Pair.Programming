@@ -77,7 +77,7 @@ namespace CoverGo.PairProgramming.App.Test.Application
             //var result = await handler.Handle(new AddProductToCartCommand(new Product()), CancellationToken.None);
 
             //Assert 
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.Handle(new AddProductToCartCommand(new Product()), CancellationToken.None));
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.Handle(new AddProductToCartCommand(null), CancellationToken.None));
         }
 
 
@@ -102,7 +102,7 @@ namespace CoverGo.PairProgramming.App.Test.Application
 
             //Assert .
 
-            decimal expectedTotal = (tShirt.Price * tShirt.Quantity);
+            decimal expectedTotal = (tShirt.Price * tShirt.Quantity) + 40;
             Assert.Equal(expectedTotal, totalPrice);
         }
 

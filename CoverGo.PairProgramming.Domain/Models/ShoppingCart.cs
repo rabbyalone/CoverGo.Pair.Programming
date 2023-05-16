@@ -31,7 +31,7 @@
             {
                 if (quantity % 2 == 1)
                 {
-                    product.Price = quantity - 1 * product.Price;
+                    product.Quantity = (quantity - 1);
                 }
             }
         }
