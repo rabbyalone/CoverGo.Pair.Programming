@@ -71,11 +71,6 @@ namespace CoverGo.PairProgramming.App.Test.Application
             var expectedResult = new ShoppingCart();
             var handler = new AddProductToCartCommandHandler(expectedResult);
 
-
-            //Act
-
-            //var result = await handler.Handle(new AddProductToCartCommand(new Product()), CancellationToken.None);
-
             //Assert 
             await Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.Handle(new AddProductToCartCommand(null), CancellationToken.None));
         }
