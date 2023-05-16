@@ -29,27 +29,6 @@ namespace CoverGo.PairProgramming.Application.Handlers
             }
             return Task.FromResult(Unit.Value);
         }
-        private (decimal, decimal) CalculateDiscountandTotalPrice(List<Product> products)
-        {
-
-            decimal discount = 0;
-            foreach (var item in products ?? new List<Product>())
-            {
-                if (item.Name.Contains("Jeans"))
-                {
-                    if (item.Quantity % 2 == 1)
-                        discount = item.Price;
-                }
-
-            }
-
-            ArgumentNullException.ThrowIfNull(products);
-
-            decimal totalPrice = products.Sum(x => x.Price * x.Quantity) - discount;
-
-            return (discount, totalPrice);
-        }
-
 
     }
 }
