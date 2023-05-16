@@ -4,26 +4,31 @@ using MediatR;
 
 namespace CoverGo.PairProgramming.Application.Handlers
 {
-    public class ShoppingCartQueryHandler : IRequestHandler<ShoppingCartQuery, ShoppingCart>
+    public class AddProductToCartCommandHandler : IRequestHandler<AddProductToCartCommand, Unit>
     {
-        public async Task<ShoppingCart> Handle(ShoppingCartQuery request, CancellationToken cancellationToken)
+
+        private readonly ShoppingCart cart;
+
+        public AddProductToCartCommandHandler(ShoppingCart cart)
         {
-
-            ArgumentNullException.ThrowIfNull(request, nameof(request));
-            ArgumentNullException.ThrowIfNull(request.Products);
-
-            ShoppingCart cart = new ShoppingCart
-            {
-                CartId = 1,
-                CustomerId = request.CustomerId,
-                Products = new List<Product>(request.Products),
-                Discount = CalculateDiscountandTotalPrice(request.Products).Item1,
-                TotalPrice = CalculateDiscountandTotalPrice(request.Products).Item2,
-            };
-
-            return cart;
+            this.cart = cart;
         }
 
+        public Task<Unit> Handle(AddProductToCartCommand request, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(request.Product);
+
+            try
+            {
+                cart.AddProduct(request.Product);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return Task.FromResult(Unit.Value);
+        }
         private (decimal, decimal) CalculateDiscountandTotalPrice(List<Product> products)
         {
 
@@ -44,5 +49,7 @@ namespace CoverGo.PairProgramming.Application.Handlers
 
             return (discount, totalPrice);
         }
+
+
     }
 }

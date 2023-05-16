@@ -3,9 +3,14 @@ using MediatR;
 
 namespace CoverGo.PairProgramming.Application.Queries
 {
-    public class ShoppingCartQuery : IRequest<ShoppingCart>
+    public class AddProductToCartCommand : IRequest<Unit>
     {
         public int CustomerId { get; set; }
-        public List<Product> Products { get; set; }
+        public Product Product { get; set; }
+
+        public AddProductToCartCommand(Product product)
+        {
+            Product = product;
+        }
     }
 }

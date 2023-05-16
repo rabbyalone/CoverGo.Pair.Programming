@@ -2,12 +2,39 @@
 {
     public class ShoppingCart
     {
-        public int CartId { get; set; }
-        public int CustomerId { get; set; }
-        public DateTime CreationDate { get; set; }
-        public List<Product> Products { get; set; }
-        public decimal TotalPrice { get; set; }
-        public decimal Discount { get; set; }
+        public readonly List<Product> items;
+
+        public ShoppingCart()
+        {
+            items = new List<Product>();
+        }
+
+        public void AddProduct(Product product)
+        {
+            items.Add(product);
+        }
+
+        public decimal CalculateTotal()
+        {
+            decimal total = 0;
+            foreach (Product item in items)
+            {
+                total += item.Price * item.Quantity;
+            }
+            return total;
+        }
+
+        public void ApplyDiscount(string productName, int quantity)
+        {
+            Product product = items.Find(p => p.Name.Equals(productName));
+            if (product != null && product.Quantity >= quantity)
+            {
+                if (quantity % 2 == 1)
+                {
+                    product.Price = quantity - 1 * product.Price;
+                }
+            }
+        }
 
     }
 }

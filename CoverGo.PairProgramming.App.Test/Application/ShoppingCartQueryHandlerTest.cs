@@ -1,42 +1,38 @@
 ﻿using CoverGo.PairProgramming.Application.Handlers;
 using CoverGo.PairProgramming.Application.Queries;
 using CoverGo.PairProgramming.Domain.Models;
-using Shouldly;
 
 namespace CoverGo.PairProgramming.App.Test.Application
 {
     public class ShoppingCartQueryHandlerTest
     {
         [Fact]
-        public async Task Should_Product_Added_Into_Shopping_Cart()
+        public async Task Should_Product_Added_Into_Shopping_Cart_And_Calculate_Total()
         {
             //Arrange
-            var handler = new ShoppingCartQueryHandler();
-            var query = new ShoppingCartQuery
-            {
-                CustomerId = 1,
-                Products = new List<Product>
-                {
-                    new Product { Id = 1, Name = "Product A"},
-                    new Product { Id = 1, Name = "Product B"},
-                }
-            };
+            Product productA = new Product { Name = "Product A", Price = 10.99m, Quantity = 2 };
+            Product productB = new Product { Name = "Product B", Price = 19.99m, Quantity = 1 };
 
-            var expectedResult = new ShoppingCart
-            {
-                CartId = 1,
-                CustomerId = 1,
-                Products = query.Products
-            };
+            ShoppingCart cart = new ShoppingCart();
+            AddProductToCartCommandHandler handler = new AddProductToCartCommandHandler(cart);
 
-            //Act
 
-            var result = await handler.Handle(query, CancellationToken.None);
+            //Act            
+
+            await handler.Handle(new AddProductToCartCommand(productA), CancellationToken.None);
+            await handler.Handle(new AddProductToCartCommand(productB), CancellationToken.None);
+
+            decimal totalPrice = cart.CalculateTotal();
 
             //Assert 
 
-            result.Products.Count.ShouldBe(query.Products.Count);
-            result.Products.Any(a => a.Name.Contains("Product A") || a.Name.Contains("Product B")).ShouldBeTrue();
+            Assert.Contains(productA, cart.items);
+            Assert.Contains(productB, cart.items);
+
+            decimal expectedTotal = (productA.Price * productA.Quantity) +
+                                (productB.Price * productB.Quantity);
+
+            Assert.Equal(expectedTotal, totalPrice);
 
 
         }
@@ -45,52 +41,43 @@ namespace CoverGo.PairProgramming.App.Test.Application
         public async Task Should_Check_Total_Sum_In_Shopping_Cart()
         {
             //Arrange
-            var handler = new ShoppingCartQueryHandler();
-            var query = new ShoppingCartQuery
-            {
-                CustomerId = 1,
-                Products = new List<Product>
-                {
-                    new Product { Id = 1, Name = "T-Shirt", Price = 10},
-                    new Product { Id = 1, Name = "Jeans", Price = 20},
-                }
-            };
+            Product productA = new Product { Name = "Product A", Price = 10.99m, Quantity = 2 };
+            Product productB = new Product { Name = "Product B", Price = 19.99m, Quantity = 1 };
 
-            var expectedResult = new ShoppingCart
-            {
-                CartId = 1,
-                CustomerId = 1,
-                Products = query.Products
-            };
+            ShoppingCart cart = new ShoppingCart();
+            AddProductToCartCommandHandler handler = new AddProductToCartCommandHandler(cart);
 
-            //Act
 
-            var result = await handler.Handle(query, CancellationToken.None);
+            //Act            
+
+            await handler.Handle(new AddProductToCartCommand(productA), CancellationToken.None);
+            await handler.Handle(new AddProductToCartCommand(productB), CancellationToken.None);
+
+            decimal totalPrice = cart.CalculateTotal();
 
             //Assert 
-            result.TotalPrice.ShouldBe(expectedResult.Products.Sum(x => x.Price * x.Quantity));
+
+            decimal expectedTotal = (productA.Price * productA.Quantity) +
+                                (productB.Price * productB.Quantity);
+
+            Assert.Equal(expectedTotal, totalPrice);
         }
 
         [Fact]
         public async Task Should_Check_If_Query_Is_Empty()
         {
             //Arrange
-            var handler = new ShoppingCartQueryHandler();
-            var query = new ShoppingCartQuery();
 
-            var expectedResult = new ShoppingCart
-            {
-                CartId = 1,
-                CustomerId = 1,
-                Products = query.Products
-            };
+            var expectedResult = new ShoppingCart();
+            var handler = new AddProductToCartCommandHandler(expectedResult);
+
 
             //Act
 
-            //var result = await handler.Handle(query, CancellationToken.None);
+            //var result = await handler.Handle(new AddProductToCartCommand(new Product()), CancellationToken.None);
 
             //Assert 
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.Handle(query, CancellationToken.None));
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.Handle(new AddProductToCartCommand(new Product()), CancellationToken.None));
         }
 
 
@@ -99,31 +86,24 @@ namespace CoverGo.PairProgramming.App.Test.Application
         public async Task Should_Check_Discount_Shopping_Cart()
         {
             //Arrange
-            var handler = new ShoppingCartQueryHandler();
-            var query = new ShoppingCartQuery
-            {
-                CustomerId = 1,
-                Products = new List<Product>
-                {
-                    new Product { Id = 1, Name = "T-Shirt", Price = 10},
-                    new Product { Id = 1, Name = "Jeans", Price = 20, Quantity = 3},
-                }
-            };
+            Product jeans = new Product { Name = "Jeans", Price = 20m, Quantity = 3 };
+            Product tShirt = new Product { Name = "T-Shirt", Price = 10, Quantity = 3 };
 
-            var expectedResult = new ShoppingCart
-            {
-                CartId = 1,
-                CustomerId = 1,
-                Products = query.Products
-            };
+            ShoppingCart cart = new ShoppingCart();
+            AddProductToCartCommandHandler handler = new AddProductToCartCommandHandler(cart);
 
             //Act
 
-            var result = await handler.Handle(query, CancellationToken.None);
+            await handler.Handle(new AddProductToCartCommand(jeans), CancellationToken.None);
+            await handler.Handle(new AddProductToCartCommand(tShirt), CancellationToken.None);
 
-            //Assert 
-            result.Discount.ShouldBe(20);
-            result.TotalPrice.ShouldBe(40);
+            cart.ApplyDiscount("Jeans", 3);
+            decimal totalPrice = cart.CalculateTotal();
+
+            //Assert .
+
+            decimal expectedTotal = (tShirt.Price * tShirt.Quantity);
+            Assert.Equal(expectedTotal, totalPrice);
         }
 
 
